@@ -18,7 +18,19 @@ PC 桌面推理小游戏 — 找出唯一的假话，在倒计时结束前做出
 
 ## 电脑下载
 
-在 [GitHub Releases](https://github.com/ajun-520/WhoIsLying/releases) 页面下载最新版 `是谁在撒谎.exe`，双击即可运行，无需安装 Python。
+在 [GitHub Releases](https://github.com/ajun-520/WhoIsLying/releases) 页面下载：
+
+- **WhoIsLying_v1.0.0.zip**（推荐，解压即玩）
+- **WhoIsLying.exe**（直接运行）
+
+双击运行，无需安装 Python。
+
+> **安全提示**：由于 exe 未购买数字签名证书（个人开发者每年需 $200+），下载时浏览器或 Windows 可能提示"无法验证发布者"或"Windows 已保护你的电脑"。这是正常现象，并非病毒。
+>
+> **解决方法**：
+> 1. 下载 `.zip` 版本，解压后运行（有时可绕过 SmartScreen）
+> 2. 如提示"Windows 已保护你的电脑"→ 点击 **"更多信息"** → 点击 **"仍要运行"**
+> 3. 如浏览器阻止下载 → 选择 **"保留"** 或 **"另存为"**
 
 ```bash
 # 源码运行
