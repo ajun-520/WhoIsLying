@@ -2,7 +2,13 @@
 
 PC 桌面推理小游戏 — 找出唯一的假话，在倒计时结束前做出选择。
 
-## 快速开始
+## 在线试玩
+
+**[ajun-520.github.io/WhoIsLying](https://ajun-520.github.io/WhoIsLying/)**
+
+纯 HTML/CSS/JS 网页版，无需下载，手机和电脑都能玩。
+
+## 桌面版运行
 
 ```bash
 # 源码运行
@@ -39,9 +45,11 @@ dist/是谁在撒谎.exe
 
 ```
 是谁在撒谎？/
-├── main.py          # 入口文件
-├── game_engine.py   # 游戏引擎：题库、题目生成、计分
-├── game_ui.py       # 图形界面：tkinter UI
+├── index.html        # 网页版（GitHub Pages）
+├── main.py           # 桌面版入口
+├── game_engine.py    # 游戏引擎：题库、题目生成、计分
+├── game_ui.py        # 桌面版 UI（tkinter）
+├── screenshots/      # 游戏截图
 └── dist/
     └── 是谁在撒谎.exe  # 打包后的独立可执行文件
 ```
