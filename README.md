@@ -14,6 +14,12 @@ dist/是谁在撒谎.exe
 
 纯 Python + tkinter 实现，无第三方依赖。
 
+## 游戏截图
+
+| 开始画面 | 游戏中 | 结算画面 |
+|---------|--------|---------|
+| ![开始画面](screenshots/01_start.png) | ![游戏中](screenshots/02_gameplay.png) | ![结算画面](screenshots/03_gameover.png) |
+
 ## 游戏规则
 
 每轮显示 **3 条陈述**，其中恰好 **1 条为假**。玩家需在倒计时结束前点选假话：
