@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>是谁在撒谎？</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --card: #16213e;
+    --btn: #0f3460;
+    --btn-hover: #1a508b;
+    --accent: #e94560;
+    --green: #00b894;
+    --yellow: #fdcb6e;
+    --text: #dfe6e9;
+    --text2: #b2bec3;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+  }
+  .container {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ---- 顶部状态栏 ---- */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 0.95rem;
+  }
+  .topbar .level { font-weight: bold; }
+  .topbar .score { color: var(--yellow); font-weight: bold; }
+  .topbar .phase { color: var(--text2); font-size: 0.85rem; }
+
+  /* ---- 标题区域(开始画面) ---- */
+  .title-block { text-align: center; padding: 60px 0 20px; }
+  .title-block h1 { font-size: 2.4rem; color: var(--accent); margin-bottom: 10px; letter-spacing: 2px; }
+  .title-block p { color: var(--text2); font-size: 0.95rem; line-height: 1.7; }
+
+  /* ---- 卡片区域 ---- */
+  .card-area { display: flex; flex-direction: column; gap: 12px; }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--btn);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    text-align: left;
+    font-size: 1rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .option-btn:active { transform: scale(0.98); }
+  .option-btn .label {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+  .option-btn.correct { background: #004d40; border-color: var(--green); }
+  .option-btn.wrong   { background: #6a1b1b; border-color: var(--accent); }
+  .option-btn:not(.correct):not(.wrong):hover { background: var(--btn-hover); }
+
+  @media (hover: none) {
+    .option-btn:not(.correct):not(.wrong):hover { background: var(--btn); }
+    .option-btn:not(.correct):not(.wrong):active { background: var(--btn-hover); }
+  }
+
+  /* ---- 倒计时 ---- */
+  .timer-section { display: flex; flex-direction: column; gap: 6px; }
+  .timer-text { font-size: 1rem; font-weight: bold; }
+  .timer-bar-wrap { height: 10px; background: var(--card); border-radius: 5px; overflow: hidden; }
+  .timer-bar-fill { height: 100%; border-radius: 5px; transition: width 0.05s linear, background-color 0.3s; }
+
+  /* ---- 按钮 ---- */
+  .main-btn {
+    display: block; width: 100%;
+    padding: 16px 0;
+    border: none; border-radius: 12px;
+    font-size: 1.15rem; font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .main-btn:active { opacity: 0.85; }
+  .btn-red  { background: var(--accent); color: #fff; }
+  .btn-dark { background: var(--card); color: var(--text); }
+
+  /* ---- 结算画面 ---- */
+  .over-block { text-align: center; padding: 30px 0; }
+  .over-block h2 { font-size: 2rem; color: var(--accent); margin-bottom: 4px; }
+  .over-block .reason { color: var(--text2); font-size: 1rem; margin-bottom: 24px; }
+  .over-block .final-score { font-size: 3.5rem; font-weight: bold; color: var(--yellow); }
+  .over-block .final-label { color: var(--text2); font-size: 0.9rem; margin-bottom: 6px; }
+  .over-block .detail { color: var(--text2); font-size: 0.85rem; margin-bottom: 30px; }
+  .btn-group { display: flex; flex-direction: column; gap: 12px; }
+
+  /* ---- 响应式 ---- */
+  @media (max-width: 480px) {
+    .title-block h1 { font-size: 1.8rem; }
+    .title-block { padding: 30px 0 10px; }
+    .option-btn { padding: 14px 16px; font-size: 0.95rem; }
+    .option-btn .label { width: 28px; height: 28px; font-size: 0.8rem; }
+    .over-block .final-score { font-size: 2.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="app"></div>
+
+<script>
+// ============================================================
+//  题库
+// ============================================================
+const COMMON_SENSE = [
+  ["太阳从东边升起", "太阳从西边落下", "太阳绕着地球转", 2],
+  ["太平洋是地球上最大的洋", "死海是地球上最低的湖泊", "撒哈拉沙漠在南美洲", 2],
+  ["珠穆朗玛峰是世界最高峰", "尼罗河是世界上最长的河流", "亚马逊河在非洲", 2],
+  ["北极熊生活在北极", "企鹅生活在南极", "北极熊和企鹅是邻居", 2],
+  ["光速约为每秒30万公里", "声速约为每秒340米", "声速比光速快", 2],
+  ["月球本身不发光", "月球绕地球运行", "月球比地球大", 2],
+  ["人类正常体温约37摄氏度", "人类有两只眼睛", "人类有三个肾脏", 2],
+  ["蜘蛛有八条腿", "昆虫有六条腿", "蜘蛛是昆虫", 2],
+  ["鲸鱼是哺乳动物", "蝙蝠是哺乳动物", "企鹅是哺乳动物", 2],
+  ["猫是食肉动物", "牛是食草动物", "猪是食草动物", 2],
+  ["DNA携带遗传信息", "红细胞没有细胞核", "人体细胞都有细胞核", 2],
+  ["植物通过光合作用产生氧气", "植物只在白天进行呼吸", "叶绿素使叶子呈绿色", 1],
+  ["铁的密度比水大", "木头的密度比水小", "铁的密度比木头小", 2],
+  ["黄金是电的良导体", "橡胶是绝缘体", "铜是绝缘体", 2],
+  ["重力加速度约为9.8m/s²", "月球引力约为地球的1/6", "太空中没有重力", 2],
+  ["H₂O是水的化学式", "CO₂是二氧化碳的化学式", "O₂是一氧化碳的化学式", 2],
+  ["第二次世界大战结束于1945年", "第一次世界大战开始于1914年", "柏林墙于1999年倒塌", 2],
+  ["秦始皇统一了中国", "唐朝定都长安", "宋朝定都南京", 2],
+  ["造纸术是中国古代四大发明之一", "指南针是中国古代四大发明之一", "蒸汽机是中国古代四大发明之一", 2],
+  ["北京是中国的首都", "上海是中国的经济中心", "广州是中国的首都", 2],
+  ["莎士比亚写了《罗密欧与朱丽叶》", "马尔克斯写了《百年孤独》", "海明威写了《战争与和平》", 2],
+  ["1+1=2", "2×3=6", "10÷2=3", 2],
+  ["三角形内角和为180度", "正方形有四个直角", "圆形有三条边", 2],
+  ["圆周率约等于3.14", "自然对数的底e约等于2.72", "圆周率恰好等于3", 2],
+  ["质数只能被1和自身整除", "2是最小的质数", "1是质数", 2],
+  ["苹果富含维生素C", "香蕉富含钾", "西瓜长在树上", 2],
+  ["咖啡含有咖啡因", "茶含有咖啡因", "牛奶含有咖啡因", 2],
+  ["米饭的主要成分是碳水化合物", "鸡蛋富含蛋白质", "面包的主要成分是脂肪", 2],
+  ["胡萝卜富含维生素A", "橙子富含维生素C", "土豆富含维生素D", 2],
+  ["一年有十二个月", "一周有七天", "一年有十三个月", 2],
+  ["莫扎特是音乐家", "达芬奇是画家", "贝多芬是作家", 2],
+  ["巴西的官方语言是葡萄牙语", "阿根廷的官方语言是西班牙语", "墨西哥的官方语言是葡萄牙语", 2],
+  ["南极是世界上最冷的大陆", "非洲是世界上最热的大陆", "欧洲是世界上最大的大陆", 2],
+  ["电灯的发明者是爱迪生", "电话的发明者是贝尔", "无线电的发明者是牛顿", 2],
+  ["蛇是爬行动物", "青蛙是两栖动物", "乌龟是两栖动物", 2],
+  ["人的血液是红色的", "章鱼的血液是蓝色的", "所有动物的血液都是红色的", 2],
+  ["声音在空气中传播需要介质", "声音不能在真空中传播", "声音在真空中传播最快", 2],
+];
+
+// ============================================================
+//  逻辑题生成器
+// ============================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateLogicQuestion() {
+  const people = ["A", "B", "C"];
+  const liar = people[randInt(0, 2)];
+  const truth = people.filter(p => p !== liar);
+  const [t1, t2] = truth;
+  const tid = randInt(0, 3);
+  let items;
+
+  if (tid === 0) {
+    items = [
+      { text: `${liar}说：${t1}在说谎`, truth: false },
+      { text: `${t1}说：${t2}在说真话`, truth: true },
+      { text: `${t2}说：${liar}在说谎`, truth: true },
+    ];
+  } else if (tid === 1) {
+    items = [
+      { text: `${liar}说：${t1}在说谎`, truth: false },
+      { text: `${t1}说：我在说真话`, truth: true },
+      { text: `${t2}说：${t1}在说真话`, truth: true },
+    ];
+  } else if (tid === 2) {
+    const facts = ["1+1=2", "地球绕太阳运行", "水往低处流", "一年有十二个月"];
+    items = [
+      { text: `${liar}说：${t1}在说谎`, truth: false },
+      { text: `${t1}说：${facts[randInt(0, 3)]}`, truth: true },
+      { text: `${t2}说：${t1}在说真话`, truth: true },
+    ];
+  } else {
+    items = [
+      { text: `${liar}说：我在说真话`, truth: false },
+      { text: `${t1}说：${t2}在说真话`, truth: true },
+      { text: `${t2}说：${liar}在说谎`, truth: true },
+    ];
+  }
+
+  items = shuffle(items);
+  const falseIdx = items.findIndex(it => !it.truth);
+  const statements = items.map(it => it.text);
+  return { statements, falseIdx };
+}
+
+function generateHardLogicQuestion() {
+  const people = ["A", "B", "C", "D"];
+  const liar = people[randInt(0, 3)];
+  const truth = people.filter(p => p !== liar);
+  const [t0, t1, t2] = truth;
+  const tid = randInt(0, 2);
+  let items;
+
+  if (tid === 0) {
+    items = [
+      { text: `${liar}说：${t0}在说谎`, truth: false },
+      { text: `${t0}说：${t1}在说真话`, truth: true },
+      { text: `${t1}说：${t2}在说真话`, truth: true },
+      { text: `${t2}说：${liar}在说谎`, truth: true },
+    ];
+  } else if (tid === 1) {
+    items = [
+      { text: `${liar}说：我在说真话`, truth: false },
+      { text: `${t0}说：${liar}在说谎`, truth: true },
+      { text: `${t1}说：${t0}在说真话`, truth: true },
+      { text: `${t2}说：${t1}在说真话`, truth: true },
+    ];
+  } else {
+    const facts = ["1+1=2", "地球绕太阳运行", "一年有十二个月", "三角形内角和为180度"];
+    items = [
+      { text: `${liar}说：${t0}在说谎`, truth: false },
+      { text: `${t0}说：${t1}在说真话`, truth: true },
+      { text: `${t1}说：我想的和${t0}一样`, truth: true },
+      { text: `${t2}说：${facts[randInt(0, 3)]}`, truth: true },
+    ];
+  }
+
+  items = shuffle(items);
+  const falseIdx = items.findIndex(it => !it.truth);
+  const statements = items.map(it => it.text);
+  return { statements, falseIdx };
+}
+
+// ============================================================
+//  游戏引擎
+// ============================================================
+class GameEngine {
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.level = 0;
+    this.score = 0;
+    this.used = [];
+  }
+
+  nextQuestion() {
+    let statements, falseIdx, timeLimit, numOpts;
+
+    if (this.level < 5) {
+      let avail = COMMON_SENSE.map((_, i) => i).filter(i => !this.used.includes(i));
+      if (avail.length === 0) { this.used = []; avail = COMMON_SENSE.map((_, i) => i); }
+      const idx = avail[randInt(0, avail.length - 1)];
+      this.used.push(idx);
+      const q = COMMON_SENSE[idx];
+      // shuffle
+      const items = q.slice(0, 3).map((text, i) => ({ text, orig: i }));
+      const shuffled = shuffle(items);
+      statements = shuffled.map(it => it.text);
+      falseIdx = shuffled.findIndex(it => it.orig === q[3]);
+      timeLimit = 5.0;
+      numOpts = 3;
+    } else if (this.level < 10) {
+      const q = generateLogicQuestion();
+      statements = q.statements;
+      falseIdx = q.falseIdx;
+      timeLimit = 5.0;
+      numOpts = 3;
+    } else {
+      if (Math.random() < 0.4) {
+        // common sense with tight timer
+        let avail = COMMON_SENSE.map((_, i) => i).filter(i => !this.used.includes(i));
+        if (avail.length === 0) { this.used = []; avail = COMMON_SENSE.map((_, i) => i); }
+        const idx = avail[randInt(0, avail.length - 1)];
+        this.used.push(idx);
+        const q = COMMON_SENSE[idx];
+        const items = q.slice(0, 3).map((text, i) => ({ text, orig: i }));
+        const shuffled = shuffle(items);
+        statements = shuffled.map(it => it.text);
+        falseIdx = shuffled.findIndex(it => it.orig === q[3]);
+        timeLimit = 4.0;
+        numOpts = 3;
+      } else {
+        const q = generateHardLogicQuestion();
+        statements = q.statements;
+        falseIdx = q.falseIdx;
+        timeLimit = 4.0;
+        numOpts = 4;
+      }
+    }
+
+    this._current = { statements, falseIdx, timeLimit, numOpts };
+    return this._current;
+  }
+
+  answer(index) {
+    if (!this._current) return { correct: false, score: this.score };
+    const correct = index === this._current.falseIdx;
+    if (correct) {
+      this.level++;
+      this.score += 10;
+    }
+    const cur = this._current;
+    this._current = null;
+    return { correct, score: this.score, falseIdx: cur.falseIdx };
+  }
+
+  timeout() {
+    if (!this._current) return { score: this.score };
+    const fi = this._current.falseIdx;
+    this._current = null;
+    return { score: this.score, falseIdx: fi };
+  }
+
+  get phase() {
+    if (this.level < 5) return "常识判断";
+    if (this.level < 10) return "逻辑推理";
+    return "高难挑战";
+  }
+}
+
+// ============================================================
+//  UI
+// ============================================================
+const app = document.getElementById("app");
+const engine = new GameEngine();
+const LABELS = ["A", "B", "C", "D"];
+let timerInterval = null;
+let timeLeft = 0;
+let timeLimit = 5;
+let locked = false;
+
+function render(html) {
+  app.innerHTML = html;
+}
+
+function showStart() {
+  render(`
+    <div class="title-block">
+      <h1>是谁在撒谎？</h1>
+      <p>每轮 3 条陈述，找出唯一的假话！<br>5 秒倒计时，答对加分，答错出局。</p>
+    </div>
+    <button class="main-btn btn-red" onclick="startGame()">开始游戏</button>
+    <div style="text-align:center;color:var(--text2);font-size:0.8rem;padding-top:14px;">响应式设计 · 手机也能玩</div>
+  `);
+}
+
+function startGame() {
+  engine.reset();
+  locked = false;
+  renderGameUI();
+  loadQuestion();
+}
+
+function renderGameUI() {
+  const phase = engine.phase;
+  const level = engine.level + 1;
+  const score = engine.score;
+  render(`
+    <div class="topbar">
+      <span class="level">第 ${level} 题</span>
+      <span class="phase">${phase}</span>
+      <span class="score">得分: ${score}</span>
+    </div>
+    <div class="card-area" id="options"></div>
+    <div class="timer-section">
+      <div class="timer-text" id="timerText">5.0 秒</div>
+      <div class="timer-bar-wrap">
+        <div class="timer-bar-fill" id="timerBar" style="width:100%;background:var(--green);"></div>
+      </div>
+    </div>
+  `);
+}
+
+function loadQuestion() {
+  if (locked) return;
+  const q = engine.nextQuestion();
+  timeLimit = q.timeLimit;
+  timeLeft = q.timeLimit;
+
+  // Update topbar
+  const level = engine.level + 1;
+  document.querySelector(".level").textContent = `第 ${level} 题`;
+  document.querySelector(".score").textContent = `得分: ${engine.score}`;
+  document.querySelector(".phase").textContent = engine.phase;
+
+  // Render options
+  const optsDiv = document.getElementById("options");
+  const cols = q.numOpts === 4 ? 2 : 1;
+  let html = "";
+  for (let i = 0; i < q.statements.length; i++) {
+    html += `
+      <div class="option-btn" onclick="onAnswer(${i})" id="opt${i}">
+        <span class="label">${LABELS[i]}</span>
+        <span>${q.statements[i]}</span>
+      </div>`;
+  }
+  optsDiv.innerHTML = html;
+  if (cols === 2) {
+    optsDiv.style.display = "grid";
+    optsDiv.style.gridTemplateColumns = "1fr 1fr";
+  } else {
+    optsDiv.style.display = "flex";
+    optsDiv.style.flexDirection = "column";
+  }
+
+  // Start timer
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval = setInterval(tick, 50);
+}
+
+function tick() {
+  timeLeft -= 0.05;
+  if (timeLeft <= 0) {
+    timeLeft = 0;
+    clearInterval(timerInterval);
+    updateTimerDisplay();
+    onTimeout();
+    return;
+  }
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const ratio = timeLeft / timeLimit;
+  const bar = document.getElementById("timerBar");
+  const txt = document.getElementById("timerText");
+  if (!bar || !txt) return;
+  bar.style.width = (ratio * 100) + "%";
+  txt.textContent = timeLeft.toFixed(1) + " 秒";
+  if (ratio <= 0.25) {
+    bar.style.background = "var(--accent)";
+    txt.style.color = "var(--accent)";
+  } else if (ratio <= 0.5) {
+    bar.style.background = "var(--yellow)";
+    txt.style.color = "var(--yellow)";
+  } else {
+    bar.style.background = "var(--green)";
+    txt.style.color = "var(--text)";
+  }
+}
+
+function onAnswer(index) {
+  if (locked) return;
+  locked = true;
+  clearInterval(timerInterval);
+
+  const result = engine.answer(index);
+  // Highlight
+  document.querySelectorAll(".option-btn").forEach((el, i) => {
+    el.style.pointerEvents = "none";
+    if (i === result.falseIdx) el.classList.add("correct");
+    else if (i === index && !result.correct) el.classList.add("wrong");
+  });
+
+  if (result.correct) {
+    document.querySelector(".score").textContent = `得分: ${result.score}`;
+    setTimeout(() => {
+      locked = false;
+      loadQuestion();
+    }, 600);
+  } else {
+    setTimeout(() => showGameOver("选择错误！"), 1200);
+  }
+}
+
+function onTimeout() {
+  if (locked) return;
+  locked = true;
+  const result = engine.timeout();
+  document.querySelectorAll(".option-btn").forEach((el, i) => {
+    el.style.pointerEvents = "none";
+    if (i === result.falseIdx) el.classList.add("correct");
+  });
+  setTimeout(() => showGameOver("时间到！"), 1200);
+}
+
+function showGameOver(reason) {
+  clearInterval(timerInterval);
+  const level = engine.level + 1;
+  const phase = engine.phase;
+  render(`
+    <div class="over-block">
+      <h2>游戏结束</h2>
+      <p class="reason">${reason}</p>
+      <div class="final-score">${engine.score}</div>
+      <p class="final-label">最终得分</p>
+      <p class="detail">到达第 ${level} 题 · 难度: ${phase}</p>
+    </div>
+    <div class="btn-group">
+      <button class="main-btn btn-red" onclick="startGame()">再玩一次</button>
+      <button class="main-btn btn-dark" onclick="showStart()">返回首页</button>
+    </div>
+  `);
+}
+
+// Init
+showStart();
+</script>
+</body>
+</html>
