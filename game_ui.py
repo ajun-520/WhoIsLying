@@ -123,17 +123,31 @@ class WhoIsLyingApp:
         tk.Label(self._main_frame, text="DETECTIVE  INTERROGATION",
                  font=tkfont.Font(family=FONT, size=9), fg=c["text2"], bg=c["bg"]).pack()
 
-        # 背景故事
+        # 背景故事（Text 控件支持高亮关键短语）
         sf = tk.Frame(self._main_frame, bg=c["surface"],
                        highlightbackground=c["border"], highlightthickness=1)
         sf.pack(pady=(14, 10), padx=50, fill=tk.X)
-        tk.Label(sf,
-                 text="城市中接连发生离奇案件。作为特别调查组的侦探，\n"
-                      "你需要审讯每一位目击者 —— 他们的陈述中，\n"
-                      "恰好有一句是谎言。找出说谎者，揭开案件真相。",
-                 font=tkfont.Font(family=FONT, size=9), fg=c["text2"], bg=c["surface"],
-                 justify=tk.CENTER, wraplength=580,
-                 ).pack(pady=(12, 12))
+
+        story_text = tk.Text(sf, font=tkfont.Font(family=FONT, size=9),
+                             fg=c["text2"], bg=c["surface"], bd=0, wrap=tk.WORD,
+                             width=60, height=4,
+                             selectbackground=sf.cget("background"),
+                             highlightthickness=0, padx=14, pady=10)
+        story_text.insert(tk.INSERT,
+                          "城市中接连发生离奇案件。作为特别调查组的侦探，\n"
+                          "你需要审讯每一位目击者 —— 他们的陈述中，恰好有一句是谎言。\n"
+                          "找出说谎者，揭开案件真相。")
+        story_text.tag_config("hl", foreground=c["accent"],
+                              font=tkfont.Font(family=FONT, size=9, weight="bold"))
+        story_text.tag_config("center", justify=tk.CENTER)
+        story_text.tag_add("center", "1.0", tk.END)
+
+        # 高亮关键短语
+        story_text.tag_add("hl", "1.14", "1.19")   # 特别调查组
+        story_text.tag_add("hl", "2.22", "2.31")   # 恰好有一句是谎言
+
+        story_text.configure(state=tk.DISABLED)
+        story_text.pack(fill=tk.X)
 
         # ---- 主题选择 ----
         tk.Label(self._main_frame, text="界面风格",
@@ -161,7 +175,7 @@ class WhoIsLyingApp:
         n_times = f"常识 {TIME_LIMITS['normal']['common']:.0f}s · 推理 {TIME_LIMITS['normal']['logic3']:.0f}s · 高难 {TIME_LIMITS['normal']['logic4']:.0f}s"
         c_times = f"常识 {TIME_LIMITS['challenge']['common']:.0f}s · 推理 {TIME_LIMITS['challenge']['logic3']:.0f}s · 高难 {TIME_LIMITS['challenge']['logic4']:.0f}s"
 
-        self._make_mode_card(mode_row, "normal", c["icon"], "普通模式",
+        self._make_mode_card(mode_row, "normal", "🔍", "普通模式",
                              "时间充裕，轻松推理", n_times).pack(side=tk.LEFT, padx=(0, 6))
         self._make_mode_card(mode_row, "challenge", "⚡", "挑战模式",
                              "时间紧迫，极限反应", c_times).pack(side=tk.LEFT, padx=(6, 0))
@@ -171,9 +185,6 @@ class WhoIsLyingApp:
                        bg=c["accent"], fg="#1a1a1a", font_size=15, width=14, height=2,
                        ).pack(pady=(20, 0))
 
-        tk.Label(self._main_frame, text="Python + Tkinter  |  桌面版 v2.1",
-                 font=tkfont.Font(family=FONT, size=8), fg=c["text2"], bg=c["bg"],
-                 ).pack(side=tk.BOTTOM, pady=12)
 
     def _set_theme(self, key):
         self.selected_theme = key
