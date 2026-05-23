@@ -1,438 +1,374 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="classic">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>是谁在撒谎？— 侦探推理游戏</title>
 <style>
-  :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --card: #1c2333;
-    --btn: #212b3e;
-    --btn-hover: #2a3855;
-    --gold: #c9a96e;
-    --gold-dim: #8b7355;
-    --red: #c0392b;
-    --green: #27ae60;
-    --yellow: #f0c040;
-    --text: #e6e6e6;
-    --text2: #9ca3af;
-    --border: #2a3344;
+  /* ============================================================
+     经典侦探 (默认 · 中性)
+     ============================================================ */
+  :root, [data-theme="classic"] {
+    --bg: #0d1117; --surface: #161b22; --card: #1c2333;
+    --btn: #212b3e; --btn-hover: #2a3855;
+    --accent: #c9a96e; --accent-dim: #8b7355;
+    --red: #c0392b; --green: #27ae60; --yellow: #f0c040;
+    --text: #e6e6e6; --text2: #9ca3af; --border: #2a3344;
+    --glow: radial-gradient(ellipse at 50% 0%, #1a2235 0%, var(--bg) 70%);
   }
+  /* ============================================================
+     暗夜追踪 (冷色 · 偏男)
+     ============================================================ */
+  [data-theme="night"] {
+    --bg: #0a0e17; --surface: #111827; --card: #151d2e;
+    --btn: #1a2540; --btn-hover: #243356;
+    --accent: #4da6ff; --accent-dim: #3b6fa0;
+    --red: #e74c3c; --green: #2ecc71; --yellow: #f39c12;
+    --text: #e8ecf1; --text2: #8899aa; --border: #1e3a5f;
+    --glow: radial-gradient(ellipse at 50% 0%, #0f1a2e 0%, var(--bg) 70%);
+  }
+  /* ============================================================
+     蔷薇推理 (暖色 · 偏女)
+     ============================================================ */
+  [data-theme="rose"] {
+    --bg: #1a1124; --surface: #1f1830; --card: #261d38;
+    --btn: #2d2240; --btn-hover: #3d2e56;
+    --accent: #e8739e; --accent-dim: #9e5a7a;
+    --red: #e74c6f; --green: #2ecc71; --yellow: #f0c040;
+    --text: #ede6f0; --text2: #b8a8c4; --border: #3d2a4a;
+    --glow: radial-gradient(ellipse at 50% 0%, #1f1630 0%, var(--bg) 70%);
+  }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
     height: 100%;
     font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", "Helvetica Neue", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
+    background: var(--bg); color: var(--text);
+    -webkit-tap-highlight-color: transparent; user-select: none;
   }
   body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-    background: radial-gradient(ellipse at 50% 0%, #1a2235 0%, var(--bg) 70%);
+    display: flex; justify-content: center; align-items: center;
+    padding: 16px; background: var(--glow);
   }
-  .container {
-    width: 100%;
-    max-width: 620px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
+  .container { width: 100%; max-width: 620px; display: flex; flex-direction: column; gap: 16px; }
 
-  /* ---- 徽章 ---- */
-  .badge {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    color: var(--gold-dim); font-size: 0.85rem; letter-spacing: 3px;
-    text-transform: uppercase; padding-top: 10px;
-  }
-  .badge::before, .badge::after {
-    content: ""; display: block; width: 24px; height: 1px; background: var(--gold-dim);
-  }
+  /* 徽章 */
+  .badge { display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--accent-dim); font-size: 0.82rem; letter-spacing: 3px; text-transform: uppercase; padding-top: 8px; }
+  .badge::before, .badge::after { content: ""; display: block; width: 20px; height: 1px; background: var(--accent-dim); }
 
-  /* ---- 标题 ---- */
-  .title-block { text-align: center; padding: 36px 0 8px; }
-  .title-block .icon { font-size: 3rem; margin-bottom: 8px; }
-  .title-block h1 { font-size: 2.4rem; color: var(--gold); margin-bottom: 6px; letter-spacing: 3px; }
-  .title-block .subtitle { color: var(--text2); font-size: 0.9rem; letter-spacing: 1px; }
-  .story-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 20px;
-    color: var(--text2);
-    font-size: 0.88rem;
-    line-height: 1.7;
-    text-align: center;
-  }
-  .story-box em { color: var(--gold); font-style: normal; }
+  /* 标题 */
+  .title-block { text-align: center; padding: 24px 0 4px; }
+  .title-block .icon { font-size: 2.6rem; margin-bottom: 4px; }
+  .title-block h1 { font-size: 2.2rem; color: var(--accent); margin-bottom: 4px; letter-spacing: 3px; }
+  .title-block .subtitle { color: var(--text2); font-size: 0.82rem; letter-spacing: 1px; }
 
-  /* ---- 模式选择 ---- */
-  .mode-row { display: flex; gap: 12px; }
-  .mode-card {
-    flex: 1; text-align: center; padding: 18px 12px;
-    background: var(--card); border: 2px solid var(--border);
-    border-radius: 12px; cursor: pointer; transition: border-color 0.2s, background 0.2s;
-  }
-  .mode-card.active { border-color: var(--gold); background: #1e2640; }
-  .mode-card .mode-icon { font-size: 1.6rem; margin-bottom: 4px; }
-  .mode-card .mode-name { font-weight: bold; font-size: 1rem; }
-  .mode-card .mode-desc { font-size: 0.78rem; color: var(--text2); margin-top: 4px; line-height: 1.4; }
+  /* 故事框 */
+  .story-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; color: var(--text2); font-size: 0.85rem; line-height: 1.7; text-align: center; }
+  .story-box em { color: var(--accent); font-style: normal; }
 
-  /* ---- 顶部栏 ---- */
-  .topbar {
-    display: flex; justify-content: space-between; align-items: center;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 12px 18px; font-size: 0.9rem;
-  }
+  /* 主题选择 */
+  .theme-row { display: flex; gap: 8px; justify-content: center; }
+  .theme-dot { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, transform 0.15s; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+  .theme-dot:active { transform: scale(0.92); }
+  .theme-dot.classic { background: #c9a96e; }
+  .theme-dot.night   { background: #4da6ff; }
+  .theme-dot.rose    { background: #e8739e; }
+  .theme-dot.active  { border-color: #fff; box-shadow: 0 0 8px currentColor; }
+  .theme-label { font-size: 0.72rem; color: var(--text2); text-align: center; }
+
+  /* 模式选择 */
+  .mode-row { display: flex; gap: 10px; }
+  .mode-card { flex: 1; text-align: center; padding: 16px 10px; background: var(--card); border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+  .mode-card.active { border-color: var(--accent); background: color-mix(in srgb, var(--card) 80%, var(--accent)); }
+  .mode-card .mode-icon { font-size: 1.5rem; margin-bottom: 2px; }
+  .mode-card .mode-name { font-weight: bold; font-size: 0.95rem; }
+  .mode-card .mode-desc { font-size: 0.75rem; color: var(--text2); margin-top: 4px; line-height: 1.4; }
+
+  /* 顶部栏 */
+  .topbar { display: flex; justify-content: space-between; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 16px; font-size: 0.88rem; }
   .topbar .level { font-weight: bold; }
-  .topbar .score { color: var(--gold); font-weight: bold; }
-  .topbar .phase { color: var(--text2); font-size: 0.82rem; }
-  .topbar .mode-badge {
-    font-size: 0.72rem; padding: 3px 8px; border-radius: 4px;
-    font-weight: bold; letter-spacing: 1px;
-  }
+  .topbar .score { color: var(--accent); font-weight: bold; }
+  .topbar .phase { color: var(--text2); font-size: 0.8rem; }
+  .mode-badge { font-size: 0.7rem; padding: 2px 7px; border-radius: 4px; font-weight: bold; letter-spacing: 1px; }
   .mode-badge.normal { background: #1a3a2a; color: var(--green); }
   .mode-badge.challenge { background: #3a1a1a; color: var(--red); }
 
-  /* ---- 选项按钮 ---- */
-  .card-area { display: flex; flex-direction: column; gap: 10px; }
-
-  .option-btn {
-    display: flex; align-items: center; gap: 14px;
-    background: var(--btn); border: 1px solid var(--border);
-    border-radius: 10px; padding: 16px 18px;
-    cursor: pointer; text-align: left;
-    font-size: 0.98rem; color: var(--text); line-height: 1.5;
-    transition: border-color 0.15s, background 0.15s, transform 0.1s;
-  }
+  /* 选项 */
+  .card-area { display: flex; flex-direction: column; gap: 9px; }
+  .option-btn { display: flex; align-items: center; gap: 12px; background: var(--btn); border: 1px solid var(--border); border-radius: 10px; padding: 15px 16px; cursor: pointer; text-align: left; font-size: 0.95rem; color: var(--text); line-height: 1.5; transition: border-color 0.15s, background 0.15s, transform 0.1s; }
   .option-btn:active { transform: scale(0.985); }
-  .option-btn .label {
-    flex-shrink: 0; width: 30px; height: 30px;
-    border-radius: 50%; background: var(--gold-dim);
-    color: #fff; display: flex; align-items: center; justify-content: center;
-    font-weight: bold; font-size: 0.85rem;
-  }
+  .option-btn .label { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-dim); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.82rem; }
   .option-btn.correct { background: #0d2b1e; border-color: var(--green); }
   .option-btn.correct .label { background: var(--green); }
   .option-btn.wrong   { background: #2b0d0d; border-color: var(--red); }
   .option-btn.wrong .label { background: var(--red); }
-  .option-btn:not(.correct):not(.wrong):hover { background: var(--btn-hover); border-color: var(--gold-dim); }
-
+  .option-btn:not(.correct):not(.wrong):hover { background: var(--btn-hover); border-color: var(--accent-dim); }
   @media (hover: none) {
     .option-btn:not(.correct):not(.wrong):hover { background: var(--btn); border-color: var(--border); }
-    .option-btn:not(.correct):not(.wrong):active { background: var(--btn-hover); border-color: var(--gold-dim); }
+    .option-btn:not(.correct):not(.wrong):active { background: var(--btn-hover); border-color: var(--accent-dim); }
   }
 
-  /* ---- 计时器 ---- */
-  .timer-section { display: flex; flex-direction: column; gap: 6px; }
+  /* 计时器 */
+  .timer-section { display: flex; flex-direction: column; gap: 5px; }
   .timer-header { display: flex; justify-content: space-between; align-items: baseline; }
-  .timer-text { font-size: 1.05rem; font-weight: bold; }
-  .timer-type { font-size: 0.78rem; color: var(--text2); }
-  .timer-bar-wrap { height: 8px; background: var(--surface); border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+  .timer-text { font-size: 1rem; font-weight: bold; }
+  .timer-type { font-size: 0.75rem; color: var(--text2); }
+  .timer-bar-wrap { height: 7px; background: var(--surface); border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
   .timer-bar-fill { height: 100%; border-radius: 4px; transition: width 0.05s linear; }
 
-  /* ---- 按钮 ---- */
-  .main-btn {
-    display: block; width: 100%;
-    padding: 15px 0; border: none; border-radius: 10px;
-    font-size: 1.1rem; font-weight: bold; cursor: pointer;
-    transition: opacity 0.15s; letter-spacing: 1px;
-  }
+  /* 按钮 */
+  .main-btn { display: block; width: 100%; padding: 14px 0; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: bold; cursor: pointer; transition: opacity 0.15s; letter-spacing: 1px; }
   .main-btn:active { opacity: 0.85; }
-  .btn-gold { background: var(--gold); color: #1a1a1a; }
+  .btn-accent { background: var(--accent); color: #1a1a1a; }
   .btn-dark { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
   .btn-red  { background: var(--red); color: #fff; }
 
-  /* ---- 结算 ---- */
-  .over-block { text-align: center; padding: 20px 0; }
-  .over-block h2 { font-size: 2rem; color: var(--red); margin-bottom: 4px; }
-  .over-block .reason { color: var(--text2); font-size: 1rem; margin-bottom: 20px; }
-  .over-block .final-score { font-size: 3.8rem; font-weight: bold; color: var(--gold); line-height: 1; }
-  .over-block .final-label { color: var(--text2); font-size: 0.85rem; margin: 4px 0 8px; }
-  .over-block .detail { color: var(--text2); font-size: 0.85rem; margin-bottom: 28px; }
-  .btn-group { display: flex; flex-direction: column; gap: 10px; }
+  /* 结算 */
+  .over-block { text-align: center; padding: 16px 0; }
+  .over-block h2 { font-size: 1.9rem; color: var(--red); margin-bottom: 2px; }
+  .over-block .reason { color: var(--text2); font-size: 0.95rem; margin-bottom: 18px; }
+  .over-block .final-score { font-size: 3.5rem; font-weight: bold; color: var(--accent); line-height: 1; }
+  .over-block .final-label { color: var(--text2); font-size: 0.82rem; margin: 2px 0 6px; }
+  .over-block .detail { color: var(--text2); font-size: 0.82rem; margin-bottom: 24px; }
+  .btn-group { display: flex; flex-direction: column; gap: 9px; }
 
-  /* ---- 响应式 ---- */
   @media (max-width: 480px) {
-    .title-block h1 { font-size: 1.7rem; }
-    .title-block .icon { font-size: 2.4rem; }
-    .title-block { padding: 16px 0 4px; }
-    .option-btn { padding: 13px 14px; font-size: 0.9rem; gap: 10px; }
-    .option-btn .label { width: 26px; height: 26px; font-size: 0.78rem; }
-    .over-block .final-score { font-size: 3rem; }
-    .story-box { font-size: 0.82rem; padding: 12px 14px; }
+    .title-block h1 { font-size: 1.6rem; }
+    .title-block .icon { font-size: 2rem; }
+    .title-block { padding: 10px 0 2px; }
+    .option-btn { padding: 12px 12px; font-size: 0.88rem; gap: 8px; }
+    .option-btn .label { width: 24px; height: 24px; font-size: 0.75rem; }
+    .over-block .final-score { font-size: 2.8rem; }
+    .story-box { font-size: 0.8rem; padding: 10px 12px; }
   }
 </style>
 </head>
 <body>
-
 <div class="container" id="app"></div>
 
 <script>
 // ============================================================
-//  题库
+//  常识题库 (70 题)
 // ============================================================
 const COMMON_SENSE = [
-  ["太阳从东边升起", "太阳从西边落下", "太阳绕着地球转", 2],
-  ["太平洋是地球上最大的洋", "死海是地球上最低的湖泊", "撒哈拉沙漠在南美洲", 2],
-  ["珠穆朗玛峰是世界最高峰", "尼罗河是世界上最长的河流", "亚马逊河在非洲", 2],
-  ["北极熊生活在北极", "企鹅生活在南极", "北极熊和企鹅是邻居", 2],
-  ["光速约为每秒30万公里", "声速约为每秒340米", "声速比光速快", 2],
-  ["月球本身不发光", "月球绕地球运行", "月球比地球大", 2],
-  ["人类正常体温约37摄氏度", "人类有两只眼睛", "人类有三个肾脏", 2],
-  ["蜘蛛有八条腿", "昆虫有六条腿", "蜘蛛是昆虫", 2],
-  ["鲸鱼是哺乳动物", "蝙蝠是哺乳动物", "企鹅是哺乳动物", 2],
-  ["猫是食肉动物", "牛是食草动物", "猪是食草动物", 2],
-  ["DNA携带遗传信息", "红细胞没有细胞核", "人体细胞都有细胞核", 2],
-  ["植物通过光合作用产生氧气", "植物只在白天进行呼吸", "叶绿素使叶子呈绿色", 1],
-  ["铁的密度比水大", "木头的密度比水小", "铁的密度比木头小", 2],
-  ["黄金是电的良导体", "橡胶是绝缘体", "铜是绝缘体", 2],
-  ["重力加速度约为9.8m/s²", "月球引力约为地球的1/6", "太空中没有重力", 2],
-  ["H₂O是水的化学式", "CO₂是二氧化碳的化学式", "O₂是一氧化碳的化学式", 2],
-  ["第二次世界大战结束于1945年", "第一次世界大战开始于1914年", "柏林墙于1999年倒塌", 2],
-  ["秦始皇统一了中国", "唐朝定都长安", "宋朝定都南京", 2],
-  ["造纸术是中国古代四大发明之一", "指南针是中国古代四大发明之一", "蒸汽机是中国古代四大发明之一", 2],
-  ["北京是中国的首都", "上海是中国的经济中心", "广州是中国的首都", 2],
-  ["莎士比亚写了《罗密欧与朱丽叶》", "马尔克斯写了《百年孤独》", "海明威写了《战争与和平》", 2],
-  ["1+1=2", "2×3=6", "10÷2=3", 2],
-  ["三角形内角和为180度", "正方形有四个直角", "圆形有三条边", 2],
-  ["圆周率约等于3.14", "自然对数的底e约等于2.72", "圆周率恰好等于3", 2],
-  ["质数只能被1和自身整除", "2是最小的质数", "1是质数", 2],
-  ["苹果富含维生素C", "香蕉富含钾", "西瓜长在树上", 2],
-  ["咖啡含有咖啡因", "茶含有咖啡因", "牛奶含有咖啡因", 2],
-  ["米饭的主要成分是碳水化合物", "鸡蛋富含蛋白质", "面包的主要成分是脂肪", 2],
-  ["胡萝卜富含维生素A", "橙子富含维生素C", "土豆富含维生素D", 2],
-  ["一年有十二个月", "一周有七天", "一年有十三个月", 2],
-  ["莫扎特是音乐家", "达芬奇是画家", "贝多芬是作家", 2],
-  ["巴西的官方语言是葡萄牙语", "阿根廷的官方语言是西班牙语", "墨西哥的官方语言是葡萄牙语", 2],
-  ["南极是世界上最冷的大陆", "非洲是世界上最热的大陆", "欧洲是世界上最大的大陆", 2],
-  ["电灯的发明者是爱迪生", "电话的发明者是贝尔", "无线电的发明者是牛顿", 2],
-  ["蛇是爬行动物", "青蛙是两栖动物", "乌龟是两栖动物", 2],
-  ["人的血液是红色的", "章鱼的血液是蓝色的", "所有动物的血液都是红色的", 2],
-  ["声音在空气中传播需要介质", "声音不能在真空中传播", "声音在真空中传播最快", 2],
+  // ---- 科学自然 (23) ----
+  ["太阳从东边升起","太阳从西边落下","太阳绕着地球转",2],
+  ["太阳是一颗恒星","火星是太阳系中的一颗行星","太阳是一颗行星",2],
+  ["喜马拉雅山脉仍在缓慢升高","死海位于海平面以下","珠穆朗玛峰每年在明显降低",2],
+  ["太平洋是地球上最大的洋","死海是地球上最低的湖泊","撒哈拉沙漠在南美洲",2],
+  ["珠穆朗玛峰是世界最高峰","尼罗河是世界上最长的河流","亚马逊河在非洲",2],
+  ["北极熊生活在北极","企鹅生活在南极","北极熊和企鹅是邻居",2],
+  ["地球大气中含量最多的气体是氮气","氧气约占地球大气的21%","地球大气中含量最多的气体是氧气",2],
+  ["南极是世界上最冷的大陆","非洲是世界上最热的大陆","欧洲是世界上最大的大陆",2],
+  ["光速约为每秒30万公里","声速约为每秒340米","声速比光速快",2],
+  ["月球本身不发光","月球绕地球运行","月球比地球大",2],
+  ["铁的密度比水大","木头的密度比水小","铁的密度比木头小",2],
+  ["黄金是电的良导体","橡胶是绝缘体","铜是绝缘体",2],
+  ["重力加速度约为9.8m/s²","月球引力约为地球的1/6","太空中没有重力",2],
+  ["H₂O是水的化学式","CO₂是二氧化碳的化学式","O₂是一氧化碳的化学式",2],
+  ["声音在空气中传播需要介质","声音不能在真空中传播","声音在真空中传播最快",2],
+  ["人类正常体温约37摄氏度","人类有两只眼睛","人类有三个肾脏",2],
+  ["人体最大的器官是皮肤","肝脏是人体最大的内脏器官","心脏是人体最大的内脏器官",2],
+  ["人的胃中有胃酸帮助消化食物","人体小肠是吸收营养的主要场所","人体大肠是吸收营养的主要场所",2],
+  ["蜘蛛有八条腿","昆虫有六条腿","蜘蛛是昆虫",2],
+  ["鲸鱼是哺乳动物","蝙蝠是哺乳动物","企鹅是哺乳动物",2],
+  ["鸭嘴兽是卵生的哺乳动物","蝙蝠是唯一会飞的哺乳动物","所有哺乳动物都是胎生的",2],
+  ["大象是陆地上现存最大的动物","蓝鲸是地球上现存最大的动物","大象比蓝鲸更大",2],
+  ["DNA携带遗传信息","红细胞没有细胞核","人体细胞都有细胞核",2],
+
+  // ---- 历史人文 (13) ----
+  ["第二次世界大战结束于1945年","第一次世界大战开始于1914年","柏林墙于1999年倒塌",2],
+  ["秦始皇统一了中国","唐朝定都长安","宋朝定都南京",2],
+  ["造纸术是中国古代四大发明之一","指南针是中国古代四大发明之一","蒸汽机是中国古代四大发明之一",2],
+  ["北京是中国的首都","上海是中国的经济中心","广州是中国的首都",2],
+  ["莎士比亚写了《罗密欧与朱丽叶》","马尔克斯写了《百年孤独》","海明威写了《战争与和平》",2],
+  ["莫扎特是音乐家","达芬奇是画家","贝多芬是作家",2],
+  ["《蒙娜丽莎》是达芬奇的作品","梵高是荷兰画家","《蒙娜丽莎》的作者是梵高",2],
+  ["奥林匹克运动会起源于古希腊","马拉松长跑的距离约为42公里","马拉松的距离是100公里",2],
+  ["围棋起源于中国","国际象棋起源于印度","国际象棋起源于中国",2],
+  ["《论语》记录了孔子的言行","《史记》的作者是司马迁","《史记》的作者是孔子",2],
+  ["交响乐通常由管弦乐队演奏","莫扎特是古典主义时期的作曲家","莫扎特是浪漫主义时期的作曲家",2],
+  ["巴西的官方语言是葡萄牙语","阿根廷的官方语言是西班牙语","墨西哥的官方语言是葡萄牙语",2],
+  ["电灯的发明者是爱迪生","电话的发明者是贝尔","无线电的发明者是牛顿",2],
+
+  // ---- 日常逻辑 (14) ----
+  ["1+1=2","2×3=6","10÷2=3",2],
+  ["三角形内角和为180度","正方形有四个直角","圆形有三条边",2],
+  ["圆周率约等于3.14","自然对数的底e约等于2.72","圆周率恰好等于3",2],
+  ["质数只能被1和自身整除","2是最小的质数","1是质数",2],
+  ["苹果富含维生素C","香蕉富含钾","西瓜长在树上",2],
+  ["咖啡含有咖啡因","茶含有咖啡因","牛奶含有咖啡因",2],
+  ["米饭的主要成分是碳水化合物","鸡蛋富含蛋白质","面包的主要成分是脂肪",2],
+  ["胡萝卜富含维生素A","橙子富含维生素C","土豆富含维生素D",2],
+  ["食盐的主要成分是氯化钠","醋的主要成分是醋酸","食盐的主要成分是碳酸钠",2],
+  ["手机屏幕发出蓝光可能影响睡眠","每天适量运动有益于健康","长时间看手机不会对眼睛造成任何影响",2],
+  ["冰箱通过制冷剂循环来保持低温","微波炉通过微波使食物水分子振动加热","微波炉是通过火焰来加热食物的",2],
+  ["维生素C有助于增强免疫力","缺钙可能导致骨质疏松","多喝可乐可以补钙",2],
+  ["WiFi信号可以穿墙传输","蓝牙的传输距离通常比WiFi短","蓝牙的传输距离比WiFi更远",2],
+  ["交通信号灯中红灯表示停止","绿灯表示可以通行","黄灯表示加速通过",2],
+
+  // ---- 侦探犯罪 (15) ----
+  ["福尔摩斯是柯南·道尔创作的虚构角色","指纹具有唯一性，每个人的指纹都不相同","福尔摩斯是真实存在的历史人物",2],
+  ["DNA检测可用于锁定犯罪嫌疑人","测谎仪通过检测生理指标来判断是否说谎","测谎仪的准确率是100%",2],
+  ["不在场证明可以帮助嫌疑人排除嫌疑","警察审讯时会记录嫌疑人的口供","只要嫌疑人自己认罪，不需要其他证据就能定罪",2],
+  ["阿加莎·克里斯蒂是著名的侦探小说作家","密室杀人是侦探小说中的经典推理类型","《福尔摩斯探案集》的作者是阿加莎·克里斯蒂",2],
+  ["法医可以通过尸检确定死因","监控录像是刑事侦查中的重要证据","所有犯罪现场都会留下指纹",2],
+  ["人说谎时可能出现微表情变化","逻辑上自相矛盾的陈述必然为假","证词前后完全一致就说明一定是真话",2],
+  ["弹道分析可以确定子弹来自哪把枪","目击者证词可能受到记忆偏差的影响","所有的侦探都是警察",2],
+  ["犯罪现场需要保护不被破坏","推理分为演绎推理和归纳推理两种类型","演绎推理的结论一定100%正确",2],
+  ["笔迹鉴定可以用于识别伪造签名","监控摄像头拍到的人脸可作为证据","只要戴上口罩监控就完全无法识别人脸",2],
+  ["真话和假话在逻辑上不能同时为真","说谎的人通常需要记住自己编造的假话","说谎的人眼睛一定会往右上方看",2],
+  ["不在场证明需要时间地点人证三个要素","被告人有权保持沉默","被告人保持沉默就等于默认有罪",2],
+  ["脚印是犯罪现场常见的物证","DNA存在于人的血液唾液和头发中","DNA鉴定只需要一根头发就能100%确定凶手",2],
+  ["侦探小说中红鲱鱼是一种转移注意力的误导线索","本格派推理注重公平地向读者提供线索","所有侦探小说的结局都是凶手自杀",2],
+  ["法医人类学可通过骨骼判断死者年龄和性别","刑侦画像师可根据目击者描述画出嫌疑人肖像","一群人指认同一个嫌疑人就说明一定是罪犯",2],
+  ["测谎结果在大多数国家的法庭上不能单独作为定罪证据","间接证据需要多个相互印证才能形成证据链","法庭上只要测谎仪显示说谎就可以直接定罪",2],
+
+  // ---- 补充 (5) ----
+  ["一年有十二个月","一周有七天","一年有十三个月",2],
+  ["猫是食肉动物","牛是食草动物","猪是食草动物",2],
+  ["植物通过光合作用产生氧气","叶绿素使叶子呈绿色","植物只在白天进行呼吸",2],
+  ["蛇是爬行动物","青蛙是两栖动物","乌龟是两栖动物",2],
+  ["人的血液是红色的","章鱼的血液是蓝色的","所有动物的血液都是红色的",2],
 ];
 
 // ============================================================
-//  工具函数
+//  工具
 // ============================================================
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function shuffle(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 
 // ============================================================
-//  逻辑题生成器
+//  逻辑题生成器 (3人6套模板 + 4人4套模板)
 // ============================================================
 function generateLogicQuestion() {
-  const people = ["A", "B", "C"];
-  const liar = people[randInt(0, 2)];
-  const truth = people.filter(p => p !== liar);
-  const [t1, t2] = truth;
-  const tid = randInt(0, 3);
+  const people=["A","B","C"];
+  const liar=people[randInt(0,2)];
+  const truth=people.filter(p=>p!==liar);
+  const[t1,t2]=truth;
+  const tid=randInt(0,5);
   let items;
 
-  if (tid === 0) {
-    items = [
-      { text: `${liar}说：${t1}在说谎`, truth: false },
-      { text: `${t1}说：${t2}在说真话`, truth: true },
-      { text: `${t2}说：${liar}在说谎`, truth: true },
-    ];
-  } else if (tid === 1) {
-    items = [
-      { text: `${liar}说：${t1}在说谎`, truth: false },
-      { text: `${t1}说：我在说真话`, truth: true },
-      { text: `${t2}说：${t1}在说真话`, truth: true },
-    ];
-  } else if (tid === 2) {
-    const facts = ["1+1=2", "地球绕太阳运行", "水往低处流", "一年有十二个月"];
-    items = [
-      { text: `${liar}说：${t1}在说谎`, truth: false },
-      { text: `${t1}说：${facts[randInt(0, 3)]}`, truth: true },
-      { text: `${t2}说：${t1}在说真话`, truth: true },
-    ];
-  } else {
-    items = [
-      { text: `${liar}说：我在说真话`, truth: false },
-      { text: `${t1}说：${t2}在说真话`, truth: true },
-      { text: `${t2}说：${liar}在说谎`, truth: true },
-    ];
+  if(tid===0){
+    items=[{text:`${liar}说：${t1}在说谎`,truth:false},{text:`${t1}说：${t2}在说真话`,truth:true},{text:`${t2}说：${liar}在说谎`,truth:true}];
+  }else if(tid===1){
+    items=[{text:`${liar}说：${t1}在说谎`,truth:false},{text:`${t1}说：我在说真话`,truth:true},{text:`${t2}说：${t1}在说真话`,truth:true}];
+  }else if(tid===2){
+    const facts=["1+1=2","地球绕太阳运行","水往低处流","一年有十二个月"];
+    items=[{text:`${liar}说：${t1}在说谎`,truth:false},{text:`${t1}说：${facts[randInt(0,3)]}`,truth:true},{text:`${t2}说：${t1}在说真话`,truth:true}];
+  }else if(tid===3){
+    items=[{text:`${liar}说：我在说真话`,truth:false},{text:`${t1}说：${t2}在说真话`,truth:true},{text:`${t2}说：${liar}在说谎`,truth:true}];
+  }else if(tid===4){
+    items=[{text:`${liar}说：${t1}和${t2}都在说谎`,truth:false},{text:`${t1}说：${liar}在说谎`,truth:true},{text:`${t2}说：${t1}在说真话`,truth:true}];
+  }else{
+    const facts=["指纹是破案的重要线索","监控可以记录犯罪过程","说谎者在陈述时可能露出破绽","不在场证明是嫌疑人自证清白的方式"];
+    items=[{text:`${liar}说："${facts[randInt(0,3)]}"这句话是错的`,truth:false},{text:`${t1}说：${liar}在说谎`,truth:true},{text:`${t2}说：${t1}在说真话`,truth:true}];
   }
-  items = shuffle(items);
-  return {
-    statements: items.map(it => it.text),
-    falseIdx: items.findIndex(it => !it.truth),
-  };
+  items=shuffle(items);
+  return{statements:items.map(it=>it.text),falseIdx:items.findIndex(it=>!it.truth)};
 }
 
 function generateHardLogicQuestion() {
-  const people = ["A", "B", "C", "D"];
-  const liar = people[randInt(0, 3)];
-  const truth = people.filter(p => p !== liar);
-  const [t0, t1, t2] = truth;
-  const tid = randInt(0, 2);
+  const people=["A","B","C","D"];
+  const liar=people[randInt(0,3)];
+  const truth=people.filter(p=>p!==liar);
+  const[t0,t1,t2]=truth;
+  const tid=randInt(0,3);
   let items;
 
-  if (tid === 0) {
-    items = [
-      { text: `${liar}说：${t0}在说谎`, truth: false },
-      { text: `${t0}说：${t1}在说真话`, truth: true },
-      { text: `${t1}说：${t2}在说真话`, truth: true },
-      { text: `${t2}说：${liar}在说谎`, truth: true },
-    ];
-  } else if (tid === 1) {
-    items = [
-      { text: `${liar}说：我在说真话`, truth: false },
-      { text: `${t0}说：${liar}在说谎`, truth: true },
-      { text: `${t1}说：${t0}在说真话`, truth: true },
-      { text: `${t2}说：${t1}在说真话`, truth: true },
-    ];
-  } else {
-    const facts = ["1+1=2", "地球绕太阳运行", "一年有十二个月", "三角形内角和为180度"];
-    items = [
-      { text: `${liar}说：${t0}在说谎`, truth: false },
-      { text: `${t0}说：${t1}在说真话`, truth: true },
-      { text: `${t1}说：我想的和${t0}一样`, truth: true },
-      { text: `${t2}说：${facts[randInt(0, 3)]}`, truth: true },
-    ];
+  if(tid===0){
+    items=[{text:`${liar}说：${t0}在说谎`,truth:false},{text:`${t0}说：${t1}在说真话`,truth:true},{text:`${t1}说：${t2}在说真话`,truth:true},{text:`${t2}说：${liar}在说谎`,truth:true}];
+  }else if(tid===1){
+    items=[{text:`${liar}说：我在说真话`,truth:false},{text:`${t0}说：${liar}在说谎`,truth:true},{text:`${t1}说：${t0}在说真话`,truth:true},{text:`${t2}说：${t1}在说真话`,truth:true}];
+  }else if(tid===2){
+    const facts=["1+1=2","地球绕太阳运行","一年有十二个月","三角形内角和为180度"];
+    items=[{text:`${liar}说：${t0}在说谎`,truth:false},{text:`${t0}说：${t1}在说真话`,truth:true},{text:`${t1}说：我想的和${t0}一样`,truth:true},{text:`${t2}说：${facts[randInt(0,3)]}`,truth:true}];
+  }else{
+    items=[{text:`${liar}说：${t0}和${t1}都在说谎`,truth:false},{text:`${t0}说：${t1}在说真话`,truth:true},{text:`${t1}说：${t2}在说真话`,truth:true},{text:`${t2}说：${liar}在说谎`,truth:true}];
   }
-  items = shuffle(items);
-  return {
-    statements: items.map(it => it.text),
-    falseIdx: items.findIndex(it => !it.truth),
-  };
+  items=shuffle(items);
+  return{statements:items.map(it=>it.text),falseIdx:items.findIndex(it=>!it.truth)};
 }
 
 // ============================================================
-//  游戏引擎
+//  引擎
 // ============================================================
-const TIME = {
-  normal:  { common: 8, logic3: 10, logic4: 12 },
-  challenge: { common: 5, logic3: 5, logic4: 4 },
+const TIME={
+  normal:{common:8,logic3:10,logic4:12},
+  challenge:{common:5,logic3:5,logic4:4}
 };
 
 class GameEngine {
-  constructor() { this.reset(); }
-
-  reset(mode) {
-    this.mode = mode || "normal";
-    this.level = 0;
-    this.score = 0;
-    this.used = [];
-  }
-
-  nextQuestion() {
-    let statements, falseIdx, timeLimit, numOpts, qType;
-    const tm = TIME[this.mode];
-
-    if (this.level < 5) {
-      qType = "common";
-      const r = this._pickCommon();
-      statements = r.statements;
-      falseIdx = r.falseIdx;
-      timeLimit = tm.common;
-      numOpts = 3;
-    } else if (this.level < 10) {
-      qType = "logic3";
-      const q = generateLogicQuestion();
-      statements = q.statements;
-      falseIdx = q.falseIdx;
-      timeLimit = tm.logic3;
-      numOpts = 3;
-    } else {
-      if (Math.random() < 0.4) {
-        qType = "common";
-        const r = this._pickCommon();
-        statements = r.statements;
-        falseIdx = r.falseIdx;
-        timeLimit = tm.common;
-        numOpts = 3;
-      } else {
-        qType = "logic4";
-        const q = generateHardLogicQuestion();
-        statements = q.statements;
-        falseIdx = q.falseIdx;
-        timeLimit = tm.logic4;
-        numOpts = 4;
-      }
+  constructor(){this.reset();}
+  reset(mode){this.mode=mode||"normal";this.level=0;this.score=0;this.used=[];}
+  nextQuestion(){
+    let statements,falseIdx,timeLimit,numOpts,qType;
+    const tm=TIME[this.mode];
+    if(this.level<5){
+      qType="common";const r=this._pickCommon();statements=r.statements;falseIdx=r.falseIdx;timeLimit=tm.common;numOpts=3;
+    }else if(this.level<10){
+      qType="logic3";const q=generateLogicQuestion();statements=q.statements;falseIdx=q.falseIdx;timeLimit=tm.logic3;numOpts=3;
+    }else{
+      if(Math.random()<0.4){qType="common";const r=this._pickCommon();statements=r.statements;falseIdx=r.falseIdx;timeLimit=tm.common;numOpts=3;}
+      else{qType="logic4";const q=generateHardLogicQuestion();statements=q.statements;falseIdx=q.falseIdx;timeLimit=tm.logic4;numOpts=4;}
     }
-
-    this._current = { statements, falseIdx, timeLimit, numOpts, qType };
+    this._current={statements,falseIdx,timeLimit,numOpts,qType};
     return this._current;
   }
-
-  _pickCommon() {
-    let avail = COMMON_SENSE.map((_, i) => i).filter(i => !this.used.includes(i));
-    if (avail.length === 0) { this.used = []; avail = COMMON_SENSE.map((_, i) => i); }
-    const idx = avail[randInt(0, avail.length - 1)];
-    this.used.push(idx);
-    const q = COMMON_SENSE[idx];
-    const items = q.slice(0, 3).map((text, i) => ({ text, orig: i }));
-    const shuffled = shuffle(items);
-    return {
-      statements: shuffled.map(it => it.text),
-      falseIdx: shuffled.findIndex(it => it.orig === q[3]),
-    };
+  _pickCommon(){
+    let avail=COMMON_SENSE.map((_,i)=>i).filter(i=>!this.used.includes(i));
+    if(avail.length===0){this.used=[];avail=COMMON_SENSE.map((_,i)=>i);}
+    const idx=avail[randInt(0,avail.length-1)];this.used.push(idx);
+    const q=COMMON_SENSE[idx];
+    const items=q.slice(0,3).map((text,i)=>({text,orig:i}));
+    const shuffled=shuffle(items);
+    return{statements:shuffled.map(it=>it.text),falseIdx:shuffled.findIndex(it=>it.orig===q[3])};
   }
-
-  answer(index) {
-    if (!this._current) return { correct: false, score: this.score };
-    const correct = index === this._current.falseIdx;
-    if (correct) { this.level++; this.score += 10; }
-    const info = { correct, score: this.score, falseIdx: this._current.falseIdx, qType: this._current.qType };
-    this._current = null;
-    return info;
+  answer(index){
+    if(!this._current)return{correct:false,score:this.score};
+    const correct=index===this._current.falseIdx;
+    if(correct){this.level++;this.score+=10;}
+    const info={correct,score:this.score,falseIdx:this._current.falseIdx,qType:this._current.qType};
+    this._current=null;return info;
   }
-
-  timeout() {
-    if (!this._current) return { score: this.score };
-    const info = { score: this.score, falseIdx: this._current.falseIdx, qType: this._current.qType };
-    this._current = null;
-    return info;
+  timeout(){
+    if(!this._current)return{score:this.score};
+    const info={score:this.score,falseIdx:this._current.falseIdx,qType:this._current.qType};
+    this._current=null;return info;
   }
-
-  get phase() {
-    if (this.level < 5) return "初步调查";
-    if (this.level < 10) return "深入审讯";
-    return "核心案件";
-  }
-
-  get phaseDesc() {
-    if (this.level < 5) return "常识判断";
-    if (this.level < 10) return "逻辑推理";
-    return "高难挑战";
-  }
+  get phase(){if(this.level<5)return"初步调查";if(this.level<10)return"深入审讯";return"核心案件";}
+  get phaseDesc(){if(this.level<5)return"常识判断";if(this.level<10)return"逻辑推理";return"高难挑战";}
 }
 
 // ============================================================
 //  UI
 // ============================================================
-const app = document.getElementById("app");
-const engine = new GameEngine();
-const LABELS = ["A", "B", "C", "D"];
-let timerInterval = null;
-let timeLeft = 0;
-let timeLimit = 10;
-let locked = false;
-let selectedMode = "normal";
+const app=document.getElementById("app");
+const engine=new GameEngine();
+const LABELS=["A","B","C","D"];
+let timerInterval=null,timeLeft=0,timeLimit=10,locked=false,selectedMode="normal";
 
-function render(html) { app.innerHTML = html; }
+function render(html){app.innerHTML=html;}
+function qTypeLabel(t){if(t==="common")return"常识判断";if(t==="logic3")return"三人逻辑";if(t==="logic4")return"四人推理";return"";}
 
-// ---------- 首页 ----------
-function showStart() {
-  const normalSel = selectedMode === "normal" ? "active" : "";
-  const challengeSel = selectedMode === "challenge" ? "active" : "";
-  const nTimes = `常识 ${TIME.normal.common}s · 推理 ${TIME.normal.logic3}s · 高难 ${TIME.normal.logic4}s`;
-  const cTimes = `常识 ${TIME.challenge.common}s · 推理 ${TIME.challenge.logic3}s · 高难 ${TIME.challenge.logic4}s`;
+// ---- 主题 ----
+const THEMES=["classic","night","rose"];
+const THEME_NAMES={classic:"经典侦探",night:"暗夜追踪",rose:"蔷薇推理"};
+const THEME_ICONS={classic:"🔍",night:"🌙",rose:"🌹"};
+
+function getTheme(){return document.documentElement.getAttribute("data-theme")||"classic";}
+function setTheme(t){
+  document.documentElement.setAttribute("data-theme",t);
+  try{localStorage.setItem("whoslying-theme",t);}catch(e){}
+}
+
+// ---- 首页 ----
+function showStart(){
+  const cur=getTheme();
+  const themeDots=THEMES.map(t=>`<div class="theme-dot ${t}${t===cur?' active':''}" onclick="setTheme('${t}');showStart();" title="${THEME_NAMES[t]}">${THEME_ICONS[t]}</div>`).join("");
+  const nSel=selectedMode==="normal"?"active":"",cSel=selectedMode==="challenge"?"active":"";
+  const nTimes=`常识 ${TIME.normal.common}s · 推理 ${TIME.normal.logic3}s · 高难 ${TIME.normal.logic4}s`;
+  const cTimes=`常识 ${TIME.challenge.common}s · 推理 ${TIME.challenge.logic3}s · 高难 ${TIME.challenge.logic4}s`;
 
   render(`
     <div class="badge">案件编号 #2026</div>
@@ -448,45 +384,45 @@ function showStart() {
       找出说谎者，揭开案件真相。
     </div>
 
-    <div style="color:var(--text2);font-size:0.85rem;text-align:center;margin-top:4px;">选择游戏模式</div>
+    <div style="text-align:center;">
+      <div class="theme-label">界面风格</div>
+      <div class="theme-row">${themeDots}</div>
+    </div>
+
+    <div style="color:var(--text2);font-size:0.82rem;text-align:center;">选择调查模式</div>
     <div class="mode-row">
-      <div class="mode-card ${normalSel}" onclick="selectMode('normal')" id="modeNormal">
-        <div class="mode-icon">&#128269;</div>
-        <div class="mode-name">普通模式</div>
+      <div class="mode-card ${nSel}" onclick="selectMode('normal')" id="modeNormal">
+        <div class="mode-icon">&#128269;</div><div class="mode-name">普通模式</div>
         <div class="mode-desc">时间充裕，轻松推理<br>${nTimes}</div>
       </div>
-      <div class="mode-card ${challengeSel}" onclick="selectMode('challenge')" id="modeChallenge">
-        <div class="mode-icon">&#9889;</div>
-        <div class="mode-name">挑战模式</div>
+      <div class="mode-card ${cSel}" onclick="selectMode('challenge')" id="modeChallenge">
+        <div class="mode-icon">&#9889;</div><div class="mode-name">挑战模式</div>
         <div class="mode-desc">时间紧迫，极限反应<br>${cTimes}</div>
       </div>
     </div>
 
-    <button class="main-btn btn-gold" onclick="startGame()">开始调查</button>
-    <div style="text-align:center;color:var(--text2);font-size:0.75rem;">响应式设计 · 手机 & 桌面均可游玩</div>
+    <button class="main-btn btn-accent" onclick="startGame()">开始调查</button>
+    <div style="text-align:center;color:var(--text2);font-size:0.72rem;">响应式设计 · 手机 & 桌面均可游玩</div>
   `);
 }
 
-function selectMode(mode) {
-  selectedMode = mode;
-  document.getElementById("modeNormal").classList.toggle("active", mode === "normal");
-  document.getElementById("modeChallenge").classList.toggle("active", mode === "challenge");
+function selectMode(m){
+  selectedMode=m;
+  document.getElementById("modeNormal").classList.toggle("active",m==="normal");
+  document.getElementById("modeChallenge").classList.toggle("active",m==="challenge");
 }
 
-// ---------- 游戏界面 ----------
-function startGame() {
-  engine.reset(selectedMode);
-  locked = false;
-  renderGameUI();
-  loadQuestion();
+// ---- 游戏 ----
+function startGame(){
+  engine.reset(selectedMode);locked=false;
+  renderGameUI();loadQuestion();
 }
-
-function renderGameUI() {
+function renderGameUI(){
   render(`
     <div class="topbar">
       <span class="level">第 1 题</span>
       <span class="phase">${engine.phaseDesc}</span>
-      <span class="mode-badge ${engine.mode}">${engine.mode === "normal" ? "普通" : "挑战"}</span>
+      <span class="mode-badge ${engine.mode}">${engine.mode==="normal"?"普通":"挑战"}</span>
       <span class="score">得分: 0</span>
     </div>
     <div class="card-area" id="options"></div>
@@ -495,128 +431,83 @@ function renderGameUI() {
         <span class="timer-text" id="timerText">10.0 秒</span>
         <span class="timer-type" id="timerType"></span>
       </div>
-      <div class="timer-bar-wrap">
-        <div class="timer-bar-fill" id="timerBar" style="width:100%;background:var(--green);"></div>
-      </div>
+      <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timerBar" style="width:100%;background:var(--green);"></div></div>
     </div>
   `);
 }
+function loadQuestion(){
+  if(locked)return;
+  const q=engine.nextQuestion();timeLimit=q.timeLimit;timeLeft=q.timeLimit;
+  document.querySelector(".level").textContent=`第 ${engine.level+1} 题`;
+  document.querySelector(".score").textContent=`得分: ${engine.score}`;
+  document.querySelector(".phase").textContent=engine.phaseDesc;
+  document.getElementById("timerType").textContent=qTypeLabel(q.qType);
 
-function qTypeLabel(type) {
-  if (type === "common") return "常识判断";
-  if (type === "logic3") return "三人逻辑";
-  if (type === "logic4") return "四人推理";
-  return "";
-}
-
-function loadQuestion() {
-  if (locked) return;
-  const q = engine.nextQuestion();
-  timeLimit = q.timeLimit;
-  timeLeft = q.timeLimit;
-
-  document.querySelector(".level").textContent = `第 ${engine.level + 1} 题`;
-  document.querySelector(".score").textContent = `得分: ${engine.score}`;
-  document.querySelector(".phase").textContent = engine.phaseDesc;
-  document.getElementById("timerType").textContent = qTypeLabel(q.qType);
-
-  const optsDiv = document.getElementById("options");
-  const cols = q.numOpts === 4 ? 2 : 1;
-  let html = "";
-  for (let i = 0; i < q.statements.length; i++) {
-    html += `<div class="option-btn" onclick="onAnswer(${i})" id="opt${i}">
-      <span class="label">${LABELS[i]}</span><span>${q.statements[i]}</span></div>`;
+  const optsDiv=document.getElementById("options");
+  const cols=q.numOpts===4?2:1;
+  let html="";
+  for(let i=0;i<q.statements.length;i++){
+    html+=`<div class="option-btn" onclick="onAnswer(${i})" id="opt${i}"><span class="label">${LABELS[i]}</span><span>${q.statements[i]}</span></div>`;
   }
-  optsDiv.innerHTML = html;
-  optsDiv.style.display = cols === 2 ? "grid" : "flex";
-  if (cols === 2) optsDiv.style.gridTemplateColumns = "1fr 1fr";
-  else optsDiv.style.flexDirection = "column";
+  optsDiv.innerHTML=html;
+  optsDiv.style.display=cols===2?"grid":"flex";
+  if(cols===2)optsDiv.style.gridTemplateColumns="1fr 1fr";else optsDiv.style.flexDirection="column";
 
-  clearInterval(timerInterval);
-  updateTimerDisplay();
-  timerInterval = setInterval(tick, 50);
+  clearInterval(timerInterval);updateTimerDisplay();timerInterval=setInterval(tick,50);
 }
-
-function tick() {
-  timeLeft -= 0.05;
-  if (timeLeft <= 0) {
-    timeLeft = 0;
-    clearInterval(timerInterval);
-    updateTimerDisplay();
-    onTimeout();
-    return;
-  }
+function tick(){
+  timeLeft-=0.05;
+  if(timeLeft<=0){timeLeft=0;clearInterval(timerInterval);updateTimerDisplay();onTimeout();return;}
   updateTimerDisplay();
 }
-
-function updateTimerDisplay() {
-  const ratio = timeLeft / timeLimit;
-  const bar = document.getElementById("timerBar");
-  const txt = document.getElementById("timerText");
-  if (!bar || !txt) return;
-  bar.style.width = (ratio * 100) + "%";
-  txt.textContent = timeLeft.toFixed(1) + " 秒";
-  if (ratio <= 0.25) { bar.style.background = "var(--red)"; txt.style.color = "var(--red)"; }
-  else if (ratio <= 0.5) { bar.style.background = "var(--yellow)"; txt.style.color = "var(--yellow)"; }
-  else { bar.style.background = "var(--green)"; txt.style.color = "var(--text)"; }
+function updateTimerDisplay(){
+  const ratio=timeLeft/timeLimit;
+  const bar=document.getElementById("timerBar"),txt=document.getElementById("timerText");
+  if(!bar||!txt)return;
+  bar.style.width=(ratio*100)+"%";txt.textContent=timeLeft.toFixed(1)+" 秒";
+  if(ratio<=0.25){bar.style.background="var(--red)";txt.style.color="var(--red)";}
+  else if(ratio<=0.5){bar.style.background="var(--yellow)";txt.style.color="var(--yellow)";}
+  else{bar.style.background="var(--green)";txt.style.color="var(--text)";}
+}
+function onAnswer(index){
+  if(locked)return;locked=true;clearInterval(timerInterval);
+  const result=engine.answer(index);
+  document.querySelectorAll(".option-btn").forEach((el,i)=>{el.style.pointerEvents="none";if(i===result.falseIdx)el.classList.add("correct");else if(i===index&&!result.correct)el.classList.add("wrong");});
+  if(result.correct){document.querySelector(".score").textContent=`得分: ${result.score}`;setTimeout(()=>{locked=false;loadQuestion();},600);}
+  else setTimeout(()=>showGameOver("选错了证人！"),1200);
+}
+function onTimeout(){
+  if(locked)return;locked=true;
+  const result=engine.timeout();
+  document.querySelectorAll(".option-btn").forEach((el,i)=>{el.style.pointerEvents="none";if(i===result.falseIdx)el.classList.add("correct");});
+  setTimeout(()=>showGameOver("时间耗尽！"),1200);
 }
 
-function onAnswer(index) {
-  if (locked) return;
-  locked = true;
+// ---- 结算 ----
+function showGameOver(reason){
   clearInterval(timerInterval);
-
-  const result = engine.answer(index);
-  document.querySelectorAll(".option-btn").forEach((el, i) => {
-    el.style.pointerEvents = "none";
-    if (i === result.falseIdx) el.classList.add("correct");
-    else if (i === index && !result.correct) el.classList.add("wrong");
-  });
-
-  if (result.correct) {
-    document.querySelector(".score").textContent = `得分: ${result.score}`;
-    setTimeout(() => { locked = false; loadQuestion(); }, 600);
-  } else {
-    setTimeout(() => showGameOver("选错了证人！"), 1200);
-  }
-}
-
-function onTimeout() {
-  if (locked) return;
-  locked = true;
-  const result = engine.timeout();
-  document.querySelectorAll(".option-btn").forEach((el, i) => {
-    el.style.pointerEvents = "none";
-    if (i === result.falseIdx) el.classList.add("correct");
-  });
-  setTimeout(() => showGameOver("时间耗尽！"), 1200);
-}
-
-// ---------- 结算 ----------
-function showGameOver(reason) {
-  clearInterval(timerInterval);
-  const level = engine.level + 1;
-  const phaseText = engine.phase;
-  const modeLabel = engine.mode === "normal" ? "普通模式" : "挑战模式";
-
+  const level=engine.level+1,phaseText=engine.phase;
+  const modeLabel=engine.mode==="normal"?"普通模式":"挑战模式";
   render(`
     <div class="badge">案件归档</div>
     <div class="over-block">
-      <h2>调查结束</h2>
-      <p class="reason">${reason}</p>
+      <h2>调查结束</h2><p class="reason">${reason}</p>
       <div class="final-score">${engine.score}</div>
       <p class="final-label">案件解决得分</p>
       <p class="detail">${modeLabel} · ${phaseText} · 共调查 ${level} 名目击者</p>
     </div>
     <div class="btn-group">
-      <button class="main-btn btn-gold" onclick="startGame()">重新调查</button>
+      <button class="main-btn btn-accent" onclick="startGame()">重新调查</button>
       <button class="main-btn btn-dark" onclick="showStart()">返回档案室</button>
     </div>
   `);
 }
 
-// Init
-showStart();
+// ---- 初始化 ----
+(function init(){
+  try{const saved=localStorage.getItem("whoslying-theme");if(saved&&THEMES.includes(saved))setTheme(saved);}catch(e){}
+  showStart();
+})();
 </script>
 </body>
 </html>
