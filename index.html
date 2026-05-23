@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>是谁在撒谎？— 侦探推理游戏</title>
+<meta name="theme-color" content="#c9a96e">
+<meta name="description" content="找出唯一的假话，在倒计时结束前做出选择。">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="是谁在撒谎？">
+<link rel="apple-touch-icon" href="icon-180.png">
 <style>
   /* ============================================================
      经典侦探 (默认 · 中性)
@@ -507,6 +514,8 @@ function showGameOver(reason){
   try{const saved=localStorage.getItem("whoslying-theme");if(saved&&THEMES.includes(saved))setTheme(saved);}catch(e){}
   showStart();
 })();
+// ---- Service Worker ----
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}
 </script>
 </body>
 </html>
